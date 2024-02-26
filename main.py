@@ -16,7 +16,7 @@ async def forward_command_to_pi(command):
     pass
 
 # List of valid commands
-valid_commands = ["pause", "resume", "esteregg"]
+valid_commands = ["pause", "resume", "easteregg"]
 
 
 async def handle_connection(websocket, path):
@@ -59,6 +59,14 @@ async def handle_connection(websocket, path):
                 if "command" in parsed_message.keys():
                     cmd = parsed_message["command"]
                     if cmd in valid_commands:
+                        if cmd == "easteregg":
+                            print("Easter egg activated!")
+                            await broadcast(json.dumps({
+                                "type": "special_event",
+                                "message": "Easter egg activated!",
+                                "details": "The easter egg was activated by a client.",
+                                "timestamp": datetime.now().isoformat(),
+                            }), sender=websocket)
                         print(f"Command received: {cmd}")
                         await forward_command_to_pi(cmd)
                     
