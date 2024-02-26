@@ -15,6 +15,9 @@ async def forward_command_to_pi(command):
     # TODO
     pass
 
+# List of valid commands
+valid_commands = ["pause", "resume", "esteregg"]
+
 
 async def handle_connection(websocket, path):
     connected_clients.add(websocket)
@@ -55,8 +58,18 @@ async def handle_connection(websocket, path):
                 parsed_message = json.loads(message)
                 if "command" in parsed_message.keys():
                     cmd = parsed_message["command"]
-                    print(f"Command received: {cmd}")
-                    await forward_command_to_pi(cmd)
+                    if cmd in valid_commands:
+                        print(f"Command received: {cmd}")
+                        await forward_command_to_pi(cmd)
+                    
+                    else:
+                        print(f"Invalid command: {cmd}")
+                        await websocket.send(json.dumps({
+                            "type": "server_error",
+                            "message": "Invalid command",
+                            "details": f"The command '{cmd}' is not valid.",
+                            "timestamp": datetime.now().isoformat(),
+                        }))
                 else:
                     print("Received message does not contain a command")
                     await websocket.send(json.dumps({
